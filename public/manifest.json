@@ -1,0 +1,17 @@
+{
+  "name": "ISKCON Sādhana Tracker",
+  "short_name": "Sādhana Tracker",
+  "description": "Daily devotional practice tracking, consistency streaks, and private reflection journal for ISKCON devotees.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#FAF5EE",
+  "theme_color": "#FAF5EE",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function getUserRoles() {
+      return get(/databases/$(database)/documents/userRoles/$(request.auth.uid)).data.roles;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/userRoles/$(request.auth.uid)) &&
+        'super_admin' in getUserRoles();
+    }
+
+    function isGroupAdmin(groupId) {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/userRoles/$(request.auth.uid)) &&
+        ('super_admin' in getUserRoles() || 
+         ('group_admin' in getUserRoles() && 
+          groupId in get(/databases/$(database)/documents/userRoles/$(request.auth.uid)).data.groupScopes));
+    }
+
+    // Profiles Collection
+    match /profiles/{uid} {
+      // Devotee can read their own profile; admins can read profiles in their scope
+      allow read: if isOwner(uid) || 
+                     isSuperAdmin() || 
+                     (isAuthenticated() && resource != null && isGroupAdmin(resource.data.groupId));
+
+      // Profile creation during registration: devotee creates their own profile with unverified status
+      allow create: if isOwner(uid) &&
+                       request.resource.data.uid == uid &&
+                       request.resource.data.phoneVerificationStatus in ['unverified', 'pending_manual_review'] &&
+                       request.resource.data.accountStatus == 'active';
+
+      // Updates: devotees can only update non-privileged fields (not phoneVerificationStatus, accountStatus, etc.)
+      allow update: if isSuperAdmin() || (
+        isOwner(uid) && 
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'uid', 'phoneVerificationStatus', 'phoneVerifiedAt', 'phoneVerifiedBy', 'accountStatus'
+        ])
+      );
+
+      allow delete: if isSuperAdmin();
+    }
+
+    // User Roles Collection (Trusted Administrative Boundary)
+    match /userRoles/{uid} {
+      allow read: if isOwner(uid) || isSuperAdmin();
+      // Only super administrator or trusted backend can write roles
+      allow write: if isSuperAdmin();
+    }
+
+    // Groups Collection
+    match /groups/{groupId} {
+      // Anyone authenticated can read active groups (needed during onboarding and group views)
+      allow read: if isAuthenticated();
+      // Only super admin can create or modify groups
+      allow write: if isSuperAdmin();
+    }
+
+    // Group Memberships Collection
+    match /groupMemberships/{membershipId} {
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.uid || 
+        isGroupAdmin(resource.data.groupId)
+      );
+      allow write: if isSuperAdmin() || (
+        isAuthenticated() && request.auth.uid == request.resource.data.uid && request.resource.data.status == 'active'
+      );
+    }
+
+    // Daily Sadhana Records
+    match /dailySadhana/{recordId} {
+      // Owner can read and write their records. Group admins can read non-journal sadhana records.
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.uid || 
+        isGroupAdmin(get(/databases/$(database)/documents/profiles/$(resource.data.uid)).data.groupId)
+      );
+
+      // Writes must strictly match the authenticated user UID and deterministic format
+      allow create: if isAuthenticated() && 
+                       request.resource.data.uid == request.auth.uid &&
+                       request.resource.data.roundsChanted >= 0;
+
+      allow update: if isAuthenticated() && 
+                       resource.data.uid == request.auth.uid &&
+                       request.resource.data.uid == request.auth.uid &&
+                       request.resource.data.roundsChanted >= 0;
+
+      allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+
+    // Activity Categories
+    match /activityCategories/{categoryId} {
+      allow read: if isAuthenticated();
+      allow write: if isSuperAdmin();
+    }
+
+    // Activity Entries
+    match /activityEntries/{entryId} {
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.uid || 
+        isSuperAdmin()
+      );
+      allow create, update, delete: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+    }
+
+    // Private Reflection Journal (Strictly Owner-Only!)
+    // Group admins and super admins cannot read devotees' journal entries
+    match /journalEntries/{entryId} {
+      allow read: if isAuthenticated() && resource.data.ownerUid == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if isAuthenticated() && 
+                       resource.data.ownerUid == request.auth.uid && 
+                       request.resource.data.ownerUid == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // Monthly Goals
+    match /monthlyGoals/{goalId} {
+      allow read, write: if isAuthenticated() && (
+        (resource == null && request.resource.data.uid == request.auth.uid) ||
+        (resource != null && resource.data.uid == request.auth.uid)
+      );
+    }
+
+    // Reminder Preferences
+    match /reminderPreferences/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Notification Consent
+    match /notificationPreferences/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Streak Rule Versions
+    match /streakRuleVersions/{versionId} {
+      allow read: if isAuthenticated();
+      allow write: if isSuperAdmin();
+    }
+
+    // Application Non-Secret Settings
+    match /appSettings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isSuperAdmin();
+    }
+
+    // Admin Audit Logs (Append-only by admins, read by super admin)
+    match /adminAuditLogs/{auditId} {
+      allow read: if isSuperAdmin();
+      allow create: if isAuthenticated() && (isSuperAdmin() || 'group_admin' in getUserRoles());
+      allow update, delete: if false; // Immutable audit log
+    }
+  }
+}
