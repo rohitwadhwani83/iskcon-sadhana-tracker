@@ -16,6 +16,8 @@ import {
   ChevronRight,
   MapPin,
   Heart,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { useAuth } from '../../lib/auth/AuthContext';
 import { getGroups, saveDevoteeProfile } from '../../lib/services/sadhanaService';
@@ -37,6 +39,7 @@ export default function RegisterPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState('+91');
   const [selectedGroupId, setSelectedGroupId] = useState('');
   const [agreedTerms, setAgreedTerms] = useState(false);
@@ -291,14 +294,26 @@ export default function RegisterPage() {
               </label>
               <div className="relative">
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 pl-9 rounded-xl border border-[#E7DBCA] text-sm text-[#292524] focus:ring-2 focus:ring-[#B45309]"
+                  className="w-full px-3.5 py-2.5 pl-9 pr-10 rounded-xl border border-[#E7DBCA] text-sm text-[#292524] focus:ring-2 focus:ring-[#B45309]"
                 />
                 <Lock className="w-4 h-4 text-[#78716C] absolute left-3 top-3" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-2.5 p-1 text-[#78716C] hover:text-[#78350F] focus:outline-hidden"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
               </div>
             </div>
 

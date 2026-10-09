@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../lib/auth/AuthContext';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth, isFirebaseConfigured } from '../../lib/firebase/config';
@@ -14,6 +14,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [infoMsg, setInfoMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -35,7 +36,18 @@ export default function LoginPage() {
         router.push('/dashboard');
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Invalid email or password.';
+      let msg = 'Invalid email or password.';
+      if (err instanceof Error) {
+        if (err.message.includes('auth/invalid-credential') || err.message.includes('auth/wrong-password')) {
+          msg = 'Incorrect password or email. You can toggle the eye icon to view the characters you typed, or click "Forgot Password?" to reset it.';
+        } else if (err.message.includes('auth/user-not-found')) {
+          msg = 'No devotee account found with this email. Please register first.';
+        } else if (err.message.includes('auth/too-many-requests')) {
+          msg = 'Access temporarily locked due to multiple failed attempts. Please reset your password or try again later.';
+        } else {
+          msg = err.message;
+        }
+      }
       setErrorMsg(msg);
     } finally {
       setSubmitting(false);
@@ -122,14 +134,26 @@ export default function LoginPage() {
             </div>
             <div className="relative">
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 pl-9 rounded-xl border border-[#E7DBCA] text-sm text-[#292524] focus:ring-2 focus:ring-[#B45309]"
+                className="w-full px-3.5 py-2.5 pl-9 pr-10 rounded-xl border border-[#E7DBCA] text-sm text-[#292524] focus:ring-2 focus:ring-[#B45309]"
               />
               <Lock className="w-4 h-4 text-[#78716C] absolute left-3 top-3" />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 p-1 text-[#78716C] hover:text-[#78350F] focus:outline-hidden"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
             </div>
           </div>
 
