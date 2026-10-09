@@ -29,6 +29,8 @@ import {
   createAdminBySuperAdmin,
 } from '../../../lib/services/sadhanaService';
 import { DevoteeProfile, Group, PhoneVerificationStatus } from '../../../lib/types';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth, isFirebaseConfigured } from '../../../lib/firebase/config';
 
 export default function AdminDevoteesPage() {
   const router = useRouter();
@@ -99,6 +101,24 @@ export default function AdminDevoteesPage() {
       await loadData();
     } catch (e) {
       console.error('Failed to approve devotee account:', e);
+    }
+  };
+
+  const handleAdminResetPassword = async (devotee: DevoteeProfile) => {
+    if (!devotee.email) return;
+    try {
+      if (isFirebaseConfigured && auth) {
+        await sendPasswordResetEmail(auth, devotee.email);
+        setActionSuccessMsg(`Password reset link dispatched to ${devotee.email}! Advise devotee to check Spam / Junk folder if not found in Primary.`);
+      } else {
+        setActionSuccessMsg(`Password reset simulated for ${devotee.email}.`);
+      }
+      setTimeout(() => setActionSuccessMsg(null), 8000);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Failed to send reset email';
+      console.error('Password reset dispatch error:', e);
+      setActionSuccessMsg(`Error: ${msg}`);
+      setTimeout(() => setActionSuccessMsg(null), 6000);
     }
   };
 
@@ -392,6 +412,13 @@ export default function AdminDevoteesPage() {
                             Approve Login
                           </button>
                         )}
+                        <button
+                          onClick={() => handleAdminResetPassword(d)}
+                          className="px-2.5 py-1 rounded-lg border border-[#E7DBCA] bg-white hover:bg-[#FAF5EE] text-[#78350F] font-semibold text-[11px]"
+                          title="Trigger password reset email for this devotee"
+                        >
+                          Reset Password
+                        </button>
                         <button
                           onClick={() => handleOpenVerifyModal(d)}
                           className="px-2.5 py-1 rounded-lg border border-[#E7DBCA] bg-white hover:bg-[#FAF5EE] text-[#78350F] font-semibold text-[11px]"
