@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, AlertCircle, Sparkles, Shield, User, Users } from 'lucide-react';
+import { Mail, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../lib/auth/AuthContext';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth, isFirebaseConfigured } from '../../lib/firebase/config';
@@ -151,47 +151,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Quick Testing & Demonstration Profiles */}
-        <div className="pt-4 border-t border-[#F3EADA]">
-          <div className="text-center text-[11px] font-semibold text-[#78716C] uppercase tracking-wider mb-2.5">
-            Quick Verification Roles (1-Click Preview)
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={async () => {
-                await simulateLoginAs('devotee');
-                router.push('/dashboard');
-              }}
-              className="p-2 rounded-lg border border-[#E7DBCA] bg-[#FAF5EE] hover:bg-[#F3EADA] text-center text-[11px] text-[#78350F] font-medium"
-            >
-              <User className="w-3.5 h-3.5 mx-auto mb-1 text-[#B45309]" />
-              Devotee
-            </button>
-            <button
-              type="button"
-              onClick={async () => {
-                await simulateLoginAs('group_admin');
-                router.push('/admin');
-              }}
-              className="p-2 rounded-lg border border-[#E7DBCA] bg-[#FAF5EE] hover:bg-[#F3EADA] text-center text-[11px] text-[#78350F] font-medium"
-            >
-              <Users className="w-3.5 h-3.5 mx-auto mb-1 text-[#4338CA]" />
-              Group Sevak
-            </button>
-            <button
-              type="button"
-              onClick={async () => {
-                await simulateLoginAs('super_admin', 'nandinigopikadevidasi@gmail.com');
-                router.push('/admin');
-              }}
-              className="p-2 rounded-lg border border-[#E7DBCA] bg-[#FAF5EE] hover:bg-[#F3EADA] text-center text-[11px] text-[#78350F] font-medium"
-            >
-              <Shield className="w-3.5 h-3.5 mx-auto mb-1 text-[#065F46]" />
-              Super Admin
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -232,7 +232,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="text-[11px] text-[#A8A29E] pt-2">
-              Zero-cost open community initiative • 100% private journal entries
+              Devotional community initiative • 100% private journal entries
             </div>
           </div>
         )}
@@ -458,7 +458,7 @@ export default function RegisterPage() {
                 </span>
               </div>
               <p className="text-[#57534E] leading-relaxed">
-                To maintain a zero-cost architecture without paid SMS or WhatsApp fees, phone numbers are verified manually by authorized temple administrators during group meetings or temple visits.
+                Phone numbers are verified manually by authorized temple administrators during group meetings or temple visits.
               </p>
               <p className="text-[11px] text-[#A8A29E] italic">
                 * Note: Devotees cannot mark themselves as verified.

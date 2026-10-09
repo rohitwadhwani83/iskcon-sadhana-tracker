@@ -98,9 +98,9 @@ export default function AdminOverviewPage() {
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-[#E7DBCA] shadow-xs">
-          <span className="text-[11px] text-[#78716C] block">Monthly Cost Target</span>
-          <span className="text-2xl font-bold text-emerald-700">₹0 / mo</span>
-          <span className="text-[10px] text-emerald-800 block">Spark Free Tier</span>
+          <span className="text-[11px] text-[#78716C] block">System Status</span>
+          <span className="text-2xl font-bold text-emerald-700">Active</span>
+          <span className="text-[10px] text-emerald-800 block">Cloud Database Connected</span>
         </div>
       </div>
 

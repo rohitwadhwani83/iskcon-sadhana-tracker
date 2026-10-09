@@ -124,7 +124,7 @@ export default function RemindersPage() {
           <Bell className="w-6 h-6 text-[#B45309]" /> Reminder Preferences
         </h1>
         <p className="text-xs text-[#78716C] mt-0.5">
-          Configure gentle in-app prompts and browser notifications at ₹0 cost
+          Configure gentle in-app prompts and browser notifications
         </p>
       </div>
 

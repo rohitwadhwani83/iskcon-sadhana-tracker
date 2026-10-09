@@ -11,11 +11,9 @@ export function Footer() {
           Dedicated to the daily spiritual practice and service of the devotees of ISKCON.
         </p>
         <div className="flex flex-wrap justify-center gap-4 text-[11px] pt-2">
-          <span>Zero-Cost Spark Architecture (₹0 / mo)</span>
-          <span>•</span>
           <span>Strict Privacy & Journal Isolation</span>
           <span>•</span>
-          <span>Independent from Yatra Management App</span>
+          <span>Dedicated Devotee Sādhana Support</span>
         </div>
         <p className="text-[10px] text-[#A8A29E] pt-1">
           ISKCON Sādhana Tracker — Version 3.0

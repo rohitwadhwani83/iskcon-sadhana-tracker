@@ -23,9 +23,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-16 pb-12 text-center space-y-6">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FAF5EE] border border-[#E7DBCA] text-xs font-semibold text-[#B45309] shadow-2xs">
-          <span>🕉 ISKCON Sādhana Tracker — Version 3.0</span>
-          <span>•</span>
-          <span>Zero-Cost Spark Architecture (₹0 / mo)</span>
+          <span>🕉 ISKCON Sādhana Tracker</span>
         </div>
 
         <h1 className="font-serif font-black text-4xl sm:text-5xl md:text-6xl text-[#78350F] tracking-tight max-w-3xl mx-auto leading-tight">
