@@ -3,7 +3,7 @@ import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyBP5gnBXJrL2HRh66elVXz9c5mAcxXDUtc',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyBP5gnBXJrL2HRh66elVXz9c5mAcxXDHtc',
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'iskcon-sadhana-tracker-2d3c9.firebaseapp.com',
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'iskcon-sadhana-tracker-2d3c9',
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'iskcon-sadhana-tracker-2d3c9.firebasestorage.app',
