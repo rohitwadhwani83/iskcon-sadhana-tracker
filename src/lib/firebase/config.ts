@@ -3,12 +3,12 @@ import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyBP5gnBXJrL2HRh66elVXz9c5mAcxXDUtc',
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'iskcon-sadhana-tracker-2d3c9.firebaseapp.com',
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'iskcon-sadhana-tracker-2d3c9',
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'iskcon-sadhana-tracker-2d3c9.firebasestorage.app',
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '827137008890',
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:827137008890:web:3d8624ab9e0b602a355543',
 };
 
 export const isFirebaseConfigured = Boolean(
