@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   ShieldAlert,
   Users,
@@ -19,11 +20,18 @@ import { DevoteeProfile, Group } from '../../lib/types';
 import { formatIsoDate } from '../../lib/utils/streak';
 
 export default function AdminOverviewPage() {
-  const { user, isGroupAdmin, isSuperAdmin } = useAuth();
+  const router = useRouter();
+  const { user, isGroupAdmin, isSuperAdmin, loading: authLoading } = useAuth();
 
   const [profiles, setProfiles] = useState<DevoteeProfile[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!authLoading && (!user || (!isGroupAdmin && !isSuperAdmin))) {
+      router.push('/login');
+    }
+  }, [authLoading, user, isGroupAdmin, isSuperAdmin, router]);
 
   useEffect(() => {
     async function loadAdminData() {
@@ -45,6 +53,15 @@ export default function AdminOverviewPage() {
   const activeDevotees = profiles.filter((p) => p.accountStatus === 'active').length;
   const pendingApprovalsCount = profiles.filter((p) => !p.approved && p.role !== 'super_admin').length;
   const activeGroupsCount = groups.filter((g) => g.active).length;
+
+  if (authLoading || !user || (!isGroupAdmin && !isSuperAdmin)) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-xs text-[#78716C] space-y-2">
+        <div className="w-8 h-8 rounded-full border-2 border-[#B45309] border-t-transparent animate-spin" />
+        <p>Verifying administrator credentials...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">

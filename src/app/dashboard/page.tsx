@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Sparkles,
   Calendar,
@@ -31,7 +32,14 @@ import { RecordTodayModal } from '../../components/devotee/RecordTodayModal';
 import { InAppReminderBanner } from '../../components/reminders/InAppReminderBanner';
 
 export default function DevoteeDashboardPage() {
+  const router = useRouter();
   const { user, profile, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [authLoading, user, router]);
 
   const [history, setHistory] = useState<DailySadhana[]>([]);
   const [todayRecord, setTodayRecord] = useState<DailySadhana | null>(null);
@@ -102,6 +110,15 @@ export default function DevoteeDashboardPage() {
 
   const qualifying30d = records30d.filter((r) => isDayQualifying(r, DEFAULT_STREAK_RULE)).length;
   const totalRounds30d = records30d.reduce((sum, r) => sum + (r.roundsChanted || 0), 0);
+
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-xs text-[#78716C] space-y-2">
+        <div className="w-8 h-8 rounded-full border-2 border-[#B45309] border-t-transparent animate-spin" />
+        <p>Loading your devotional practice...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">

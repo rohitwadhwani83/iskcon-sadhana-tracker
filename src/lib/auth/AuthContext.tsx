@@ -148,6 +148,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(null);
     setRoles(['devotee']);
     setGroupScopes([]);
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
   };
 
   // Helper for quick testing and local verification without requiring an external Firebase Auth project

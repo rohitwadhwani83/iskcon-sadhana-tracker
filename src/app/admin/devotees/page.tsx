@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Users,
   Search,
@@ -30,7 +31,14 @@ import {
 import { DevoteeProfile, Group, PhoneVerificationStatus } from '../../../lib/types';
 
 export default function AdminDevoteesPage() {
-  const { user, isSuperAdmin, isGroupAdmin } = useAuth();
+  const router = useRouter();
+  const { user, isSuperAdmin, isGroupAdmin, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && (!user || (!isGroupAdmin && !isSuperAdmin))) {
+      router.push('/login');
+    }
+  }, [authLoading, user, isGroupAdmin, isSuperAdmin, router]);
 
   const [devotees, setDevotees] = useState<DevoteeProfile[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
@@ -189,6 +197,15 @@ export default function AdminDevoteesPage() {
   });
 
   const pendingApprovalsCount = devotees.filter((d) => !d.approved && d.role !== 'super_admin').length;
+
+  if (authLoading || !user || (!isGroupAdmin && !isSuperAdmin)) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-xs text-[#78716C] space-y-2">
+        <div className="w-8 h-8 rounded-full border-2 border-[#B45309] border-t-transparent animate-spin" />
+        <p>Verifying administrator credentials...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
