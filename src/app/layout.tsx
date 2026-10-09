@@ -9,6 +9,14 @@ export const metadata: Metadata = {
   description:
     'Devotional daily sadhana tracking, personal consistency streaks, monthly progress summaries, and private reflection journal for ISKCON devotees.',
   manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Sādhana Tracker',
+  },
+  formatDetection: {
+    telephone: false,
+  },
   icons: {
     icon: '/favicon.ico',
     apple: '/favicon.ico',
@@ -20,6 +28,8 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
