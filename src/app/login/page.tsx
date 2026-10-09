@@ -182,7 +182,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={async () => {
-                await simulateLoginAs('super_admin');
+                await simulateLoginAs('super_admin', 'nandinigopikadevidasi@gmail.com');
                 router.push('/admin');
               }}
               className="p-2 rounded-lg border border-[#E7DBCA] bg-[#FAF5EE] hover:bg-[#F3EADA] text-center text-[11px] text-[#78350F] font-medium"

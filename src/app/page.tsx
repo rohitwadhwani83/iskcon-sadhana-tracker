@@ -74,7 +74,7 @@ export default function HomePage() {
               Enter as Group Sevak
             </button>
             <button
-              onClick={() => simulateLoginAs('super_admin')}
+              onClick={() => simulateLoginAs('super_admin', 'nandinigopikadevidasi@gmail.com')}
               className="px-3 py-1.5 rounded-lg bg-[#FAF5EE] border border-[#E7DBCA] text-[#065F46] font-semibold hover:bg-[#F3EADA]"
             >
               Enter as Temple Admin

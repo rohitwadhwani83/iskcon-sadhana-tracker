@@ -56,12 +56,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [groupScopes, setGroupScopes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadUserData = async (uid: string) => {
+  const loadUserData = async (uid: string, userEmail?: string | null) => {
     try {
       const prof = await getDevoteeProfile(uid);
       setProfile(prof);
 
+      const effectiveEmail = (prof?.email || userEmail || '').toLowerCase();
       const userRoles = await getUserRoles(uid);
+
+      // Designated initial Temple Super Administrator policy
+      if (effectiveEmail === 'nandinigopikadevidasi@gmail.com') {
+        const adminRoles: UserRoles = {
+          uid,
+          roles: ['super_admin', 'group_admin', 'devotee'],
+          groupScopes: userRoles?.groupScopes || [],
+          grantedBy: 'designated-temple-superadmin-policy',
+          createdAt: userRoles?.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        await saveUserRoles(adminRoles);
+        setRoles(adminRoles.roles);
+        setGroupScopes(adminRoles.groupScopes);
+        return;
+      }
+
       if (userRoles) {
         setRoles(userRoles.roles);
         setGroupScopes(userRoles.groupScopes || []);
@@ -76,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshProfile = async () => {
     if (user?.uid) {
-      await loadUserData(user.uid);
+      await loadUserData(user.uid, user.email);
     }
   };
 
@@ -90,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email: fbUser.email,
             emailVerified: fbUser.emailVerified,
           });
-          await loadUserData(fbUser.uid);
+          await loadUserData(fbUser.uid, fbUser.email);
         } else {
           setUser(null);
           setProfile(null);
@@ -108,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           try {
             const parsed = JSON.parse(stored);
             setUser(parsed);
-            loadUserData(parsed.uid).finally(() => setLoading(false));
+            loadUserData(parsed.uid, parsed.email).finally(() => setLoading(false));
             return;
           } catch (e) {
             console.error(e);
