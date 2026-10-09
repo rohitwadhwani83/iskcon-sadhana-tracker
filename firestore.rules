@@ -16,17 +16,21 @@ service cloud.firestore {
     }
 
     function isSuperAdmin() {
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/userRoles/$(request.auth.uid)) &&
-        'super_admin' in getUserRoles();
+      return isAuthenticated() && (
+        request.auth.token.email == 'nandinigopikadevidasi@gmail.com' ||
+        (exists(/databases/$(database)/documents/userRoles/$(request.auth.uid)) &&
+         'super_admin' in getUserRoles())
+      );
     }
 
     function isGroupAdmin(groupId) {
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/userRoles/$(request.auth.uid)) &&
-        ('super_admin' in getUserRoles() || 
-         ('group_admin' in getUserRoles() && 
-          groupId in get(/databases/$(database)/documents/userRoles/$(request.auth.uid)).data.groupScopes));
+      return isAuthenticated() && (
+        isSuperAdmin() || 
+        (exists(/databases/$(database)/documents/userRoles/$(request.auth.uid)) &&
+         'group_admin' in getUserRoles() && 
+         (groupId in get(/databases/$(database)/documents/userRoles/$(request.auth.uid)).data.groupScopes ||
+          '*' in get(/databases/$(database)/documents/userRoles/$(request.auth.uid)).data.groupScopes))
+      );
     }
 
     // Profiles Collection
@@ -36,19 +40,15 @@ service cloud.firestore {
                      isSuperAdmin() || 
                      (isAuthenticated() && resource != null && isGroupAdmin(resource.data.groupId));
 
-      // Profile creation during registration: devotee creates their own profile with unverified status
-      allow create: if isOwner(uid) &&
-                       request.resource.data.uid == uid &&
-                       request.resource.data.phoneVerificationStatus in ['unverified', 'pending_manual_review'] &&
-                       request.resource.data.accountStatus == 'active';
+      // Profile creation: devotee creates their own profile or Super Admin creates Admin/Devotee profile
+      allow create: if (isOwner(uid) && request.resource.data.uid == uid) || isSuperAdmin();
 
-      // Updates: devotees can only update non-privileged fields (not phoneVerificationStatus, accountStatus, etc.)
-      allow update: if isSuperAdmin() || (
-        isOwner(uid) && 
-        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
-          'uid', 'phoneVerificationStatus', 'phoneVerifiedAt', 'phoneVerifiedBy', 'accountStatus'
-        ])
-      );
+      // Updates: Super Admin & Group Admins can approve; devotees can update non-privileged fields
+      allow update: if isSuperAdmin() || 
+                       (isAuthenticated() && resource != null && isGroupAdmin(resource.data.groupId)) ||
+                       (isOwner(uid) && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+                         'uid', 'phoneVerificationStatus', 'phoneVerifiedAt', 'phoneVerifiedBy', 'accountStatus', 'approved', 'approvedBy', 'approvedAt'
+                       ]));
 
       allow delete: if isSuperAdmin();
     }

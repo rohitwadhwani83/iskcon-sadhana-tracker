@@ -206,6 +206,109 @@ export async function updatePhoneVerification(
   }
 }
 
+export async function approveDevoteeAccount(
+  uid: string,
+  adminUid: string
+): Promise<void> {
+  const now = new Date().toISOString();
+  const updates: Partial<DevoteeProfile> = {
+    approved: true,
+    approvedBy: adminUid,
+    approvedAt: now,
+    accountStatus: 'active',
+    phoneVerificationStatus: 'verified_by_admin',
+    phoneVerifiedAt: now,
+    phoneVerifiedBy: adminUid,
+    updatedAt: now,
+  };
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await updateDoc(doc(db, 'profiles', uid), updates);
+      return;
+    } catch (e) {
+      console.warn('Firestore approveDevoteeAccount error:', e);
+    }
+  }
+
+  const profiles = getLs<Record<string, DevoteeProfile>>(LS_PROFILES, {});
+  if (profiles[uid]) {
+    profiles[uid] = { ...profiles[uid], ...updates };
+    setLs(LS_PROFILES, profiles);
+  }
+}
+
+export async function createAdminBySuperAdmin(data: {
+  fullName: string;
+  email: string;
+  password?: string;
+  groupId: string;
+  superAdminUid: string;
+}): Promise<{ uid: string; error?: string }> {
+  const email = data.email.trim().toLowerCase();
+  const password = data.password || 'Admin@108';
+  let uid = '';
+
+  const apiKey = 'AIzaSyBP5gnBXJrL2HRh66elVXz9c5mAcxXDHtc';
+  try {
+    const signUpRes = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, returnSecureToken: true }),
+      }
+    );
+    const json = await signUpRes.json();
+    if (json.error) {
+      if (json.error.message?.includes('EMAIL_EXISTS')) {
+        return { uid: '', error: 'An account with this email already exists.' };
+      }
+      return { uid: '', error: json.error.message || 'Failed to create admin in auth.' };
+    }
+    uid = json.localId;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Error creating admin';
+    console.warn('Auth REST signup error:', msg);
+    return { uid: '', error: msg };
+  }
+
+  const now = new Date().toISOString();
+  const adminProfile: DevoteeProfile = {
+    uid,
+    fullName: data.fullName.trim(),
+    email,
+    phoneNumber: '+919876543210',
+    phoneVerificationStatus: 'verified_by_admin',
+    phoneVerifiedAt: now,
+    phoneVerifiedBy: data.superAdminUid,
+    regulativePrinciplesDeclaration: 'yes',
+    declarationUpdatedAt: now,
+    groupId: data.groupId,
+    profileComplete: true,
+    accountStatus: 'active',
+    role: 'group_admin',
+    approved: true,
+    approvedBy: data.superAdminUid,
+    approvedAt: now,
+    createdAt: now,
+    updatedAt: now,
+  };
+  await saveDevoteeProfile(adminProfile);
+
+  const rolesData: UserRoles = {
+    uid,
+    roles: ['group_admin', 'devotee'],
+    groupScopes: [data.groupId],
+    grantedBy: data.superAdminUid,
+    createdAt: now,
+    updatedAt: now,
+  };
+  await saveUserRoles(rolesData);
+
+  return { uid };
+}
+
 // ==========================================
 // USER ROLES SERVICE
 // ==========================================

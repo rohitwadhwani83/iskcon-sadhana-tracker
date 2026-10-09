@@ -120,6 +120,26 @@ export default function RegisterPage() {
 
       setRegisteredUid(uid);
       setPhone(normalizedPhone);
+
+      // Save devotee profile in database immediately upon registration
+      const initialProfile: DevoteeProfile = {
+        uid,
+        fullName: fullName.trim(),
+        email: email.trim().toLowerCase(),
+        phoneNumber: normalizedPhone,
+        phoneVerificationStatus: 'unverified',
+        regulativePrinciplesDeclaration: 'yes',
+        declarationUpdatedAt: new Date().toISOString(),
+        groupId: selectedGroupId || 'grp_general',
+        profileComplete: false,
+        accountStatus: 'active',
+        role: 'devotee',
+        approved: false, // Requires Group Admin approval before login
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      await saveDevoteeProfile(initialProfile);
+
       setStep(3); // Advance to Email Verification step
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Registration failed.';
@@ -141,7 +161,7 @@ export default function RegisterPage() {
     const profile: DevoteeProfile = {
       uid,
       fullName: fullName.trim(),
-      email: email.trim() || user?.email || '',
+      email: email.trim().toLowerCase() || user?.email || '',
       phoneNumber: phone,
       phoneVerificationStatus: 'unverified', // Strictly starts unverified until authorized admin review
       phoneVerifiedAt: null,
@@ -154,6 +174,8 @@ export default function RegisterPage() {
       groupId: selectedGroupId || 'grp_general',
       profileComplete: true,
       accountStatus: 'active',
+      role: 'devotee',
+      approved: false, // Requires Group Admin approval before login
       createdAt: now,
       updatedAt: now,
     };
@@ -627,23 +649,27 @@ export default function RegisterPage() {
             </div>
             <div>
               <h3 className="font-serif font-bold text-2xl text-[#78350F]">
-                Welcome to ISKCON Sādhana Tracker!
+                Registration Received!
               </h3>
-              <p className="text-sm text-[#065F46] font-medium mt-1">
-                Your devotee account and profile have been created successfully.
+              <p className="text-sm text-[#B45309] font-medium mt-1">
+                Hare Krishna! Your devotee details have been submitted.
               </p>
             </div>
-            <p className="text-xs text-[#57534E] max-w-md mx-auto leading-relaxed">
-              Your profile is associated with your group. You can now record your daily japa,
-              monitor consistency streaks, write private realizations, and view monthly reports.
-            </p>
+            <div className="bg-[#FAF5EE] border border-[#E7DBCA] rounded-xl p-4 text-xs text-[#57534E] max-w-md mx-auto leading-relaxed space-y-2 text-left">
+              <p className="font-semibold text-[#78350F]">
+                ⏳ Account Status: Pending Admin Approval
+              </p>
+              <p>
+                To maintain authentic devotional sangha, your Group Sevak (Admin) will approve your account. Once approved, you can log in directly through the <strong>Devotee Portal</strong> to record your daily japa rounds and spiritual readings.
+              </p>
+            </div>
 
             <div className="pt-3">
               <Link
-                href="/dashboard"
+                href="/login"
                 className="w-full py-3 bg-[#B45309] hover:bg-[#92400E] text-white text-sm font-semibold rounded-xl shadow-xs block text-center"
               >
-                Go to Devotee Dashboard
+                Proceed to Sign In Portal
               </Link>
             </div>
           </div>

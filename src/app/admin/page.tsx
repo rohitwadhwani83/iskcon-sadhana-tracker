@@ -43,9 +43,7 @@ export default function AdminOverviewPage() {
 
   const totalDevotees = profiles.length;
   const activeDevotees = profiles.filter((p) => p.accountStatus === 'active').length;
-  const pendingPhoneReviews = profiles.filter(
-    (p) => p.phoneVerificationStatus === 'unverified' || p.phoneVerificationStatus === 'pending_manual_review'
-  ).length;
+  const pendingApprovalsCount = profiles.filter((p) => !p.approved && p.role !== 'super_admin').length;
   const activeGroupsCount = groups.filter((g) => g.active).length;
 
   return (
@@ -62,7 +60,7 @@ export default function AdminOverviewPage() {
             Administrator Management Portal
           </h1>
           <p className="text-xs text-[#78716C]">
-            Configure groups, oversee devotee accounts, verify phone numbers, and generate temple reports.
+            Approve devotee registrations, oversee group sadhana progress, and generate temple reports.
           </p>
         </div>
 
@@ -88,13 +86,13 @@ export default function AdminOverviewPage() {
         <div className="bg-white p-4 rounded-xl border border-[#E7DBCA] shadow-xs">
           <span className="text-[11px] text-[#78716C] block">Active Groups</span>
           <span className="text-2xl font-bold text-[#78350F]">{activeGroupsCount}</span>
-          <span className="text-[10px] text-[#78716C] block">configured in Firestore</span>
+          <span className="text-[10px] text-[#78716C] block">configured in database</span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-[#E7DBCA] shadow-xs">
-          <span className="text-[11px] text-[#78716C] block">Phone Verification Queue</span>
-          <span className="text-2xl font-bold text-amber-700">{pendingPhoneReviews}</span>
-          <span className="text-[10px] text-[#78716C] block">pending manual check</span>
+          <span className="text-[11px] text-[#78716C] block">Pending Logins</span>
+          <span className="text-2xl font-bold text-amber-700">{pendingApprovalsCount}</span>
+          <span className="text-[10px] text-amber-800 block">awaiting admin approval</span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-[#E7DBCA] shadow-xs">
@@ -128,7 +126,7 @@ export default function AdminOverviewPage() {
           </div>
         </Link>
 
-        {/* Module 2: Devotee & Phone Verification */}
+        {/* Module 2: Devotee & Login Approvals */}
         <Link
           href="/admin/devotees"
           className="bg-white border border-[#E7DBCA] hover:border-[#B45309] rounded-2xl p-5 shadow-xs transition-colors flex flex-col justify-between group"
@@ -138,14 +136,14 @@ export default function AdminOverviewPage() {
               <Users className="w-5 h-5" />
             </div>
             <h3 className="font-serif font-bold text-base text-[#78350F]">
-              Devotees & Verification
+              Devotees & Login Approvals
             </h3>
             <p className="text-xs text-[#78716C] leading-relaxed">
-              Review devotee rosters, verify phone numbers without paid SMS/WhatsApp, and record administrator verification notes.
+              Approve devotee registrations, assign groups, and manage administrator credentials.
             </p>
           </div>
           <div className="mt-4 pt-3 border-t border-[#F3EADA] flex items-center justify-between text-xs font-semibold text-[#B45309]">
-            <span>Review Devotees</span>
+            <span>Manage & Approve Logins</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </div>
         </Link>

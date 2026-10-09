@@ -27,6 +27,10 @@ export interface DevoteeProfile {
   groupId: string;
   profileComplete: boolean;
   accountStatus: AccountStatus;
+  role?: Role;
+  approved?: boolean;
+  approvedBy?: string | null;
+  approvedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -15,6 +15,7 @@ import {
   Headphones,
   Award,
   ChevronRight,
+  Clock,
 } from 'lucide-react';
 import { useAuth } from '../../lib/auth/AuthContext';
 import {
@@ -104,6 +105,16 @@ export default function DevoteeDashboardPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      {profile && profile.approved === false && (
+        <div className="p-4 bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl flex items-center gap-3 shadow-2xs">
+          <Clock className="w-5 h-5 text-amber-700 shrink-0" />
+          <div className="text-xs">
+            <strong className="block font-semibold">Account Pending Group Admin Approval</strong>
+            Your devotee registration has been received. Your Group Sevak (Admin) will approve your account.
+          </div>
+        </div>
+      )}
+
       {/* Top Welcome & Record Hero Card */}
       <div className="bg-white border border-[#E7DBCA] rounded-2xl p-6 shadow-xs relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
