@@ -16,7 +16,7 @@ import {
 import { useAuth } from '../lib/auth/AuthContext';
 
 export default function HomePage() {
-  const { user, simulateLoginAs } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col justify-between">
@@ -55,31 +55,6 @@ export default function HomePage() {
           >
             Sign In to Existing Account
           </Link>
-        </div>
-
-        {/* 1-Click Instant Preview for Evaluation */}
-        <div className="pt-6">
-          <span className="text-xs text-[#78716C] block mb-2">Instant Demo Mode (No Registration Needed):</span>
-          <div className="flex flex-wrap justify-center gap-2 text-xs">
-            <button
-              onClick={() => simulateLoginAs('devotee')}
-              className="px-3 py-1.5 rounded-lg bg-[#FAF5EE] border border-[#E7DBCA] text-[#78350F] font-semibold hover:bg-[#F3EADA]"
-            >
-              Enter as Devotee
-            </button>
-            <button
-              onClick={() => simulateLoginAs('group_admin')}
-              className="px-3 py-1.5 rounded-lg bg-[#FAF5EE] border border-[#E7DBCA] text-[#4338CA] font-semibold hover:bg-[#F3EADA]"
-            >
-              Enter as Group Sevak
-            </button>
-            <button
-              onClick={() => simulateLoginAs('super_admin', 'nandinigopikadevidasi@gmail.com')}
-              className="px-3 py-1.5 rounded-lg bg-[#FAF5EE] border border-[#E7DBCA] text-[#065F46] font-semibold hover:bg-[#F3EADA]"
-            >
-              Enter as Temple Admin
-            </button>
-          </div>
         </div>
       </div>
 
