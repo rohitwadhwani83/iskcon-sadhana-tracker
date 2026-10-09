@@ -385,6 +385,10 @@ export async function saveDailySadhanaRecord(
   if (isFirebaseConfigured && db) {
     try {
       await setDoc(doc(db, 'dailySadhana', docId), record, { merge: true });
+      // Keep local store in sync as local fallback cache
+      const sadhanaMap = getLs<Record<string, DailySadhana>>(LS_SADHANA, {});
+      sadhanaMap[docId] = record;
+      setLs(LS_SADHANA, sadhanaMap);
       return record;
     } catch (e) {
       console.warn('Firestore saveDailySadhana error, using local fallback:', e);
@@ -404,19 +408,20 @@ export async function getDevoteeSadhanaHistory(
 ): Promise<DailySadhana[]> {
   if (isFirebaseConfigured && db) {
     try {
-      let q = query(
+      // Query by single field to avoid requiring a composite index in Firestore
+      const q = query(
         collection(db, 'dailySadhana'),
-        where('uid', '==', uid),
-        orderBy('localDate', 'desc'),
-        limit(100)
+        where('uid', '==', uid)
       );
       const snapshot = await getDocs(q);
       const records = snapshot.docs.map((d) => d.data() as DailySadhana);
-      return records.filter((r) => {
-        if (startDate && r.localDate < startDate) return false;
-        if (endDate && r.localDate > endDate) return false;
-        return true;
-      });
+      return records
+        .filter((r) => {
+          if (startDate && r.localDate < startDate) return false;
+          if (endDate && r.localDate > endDate) return false;
+          return true;
+        })
+        .sort((a, b) => b.localDate.localeCompare(a.localDate));
     } catch (e) {
       console.warn('Firestore getDevoteeSadhanaHistory error, using local fallback:', e);
     }
@@ -443,12 +448,11 @@ export async function getJournalEntries(ownerUid: string): Promise<JournalEntry[
     try {
       const q = query(
         collection(db, 'journalEntries'),
-        where('ownerUid', '==', ownerUid),
-        orderBy('entryDate', 'desc'),
-        limit(100)
+        where('ownerUid', '==', ownerUid)
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as JournalEntry));
+      const entries = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as JournalEntry));
+      return entries.sort((a, b) => b.entryDate.localeCompare(a.entryDate));
     } catch (e) {
       console.warn('Firestore getJournalEntries error, fallback:', e);
     }

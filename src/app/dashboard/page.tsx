@@ -79,10 +79,21 @@ export default function DevoteeDashboardPage() {
         getGroups(),
       ]);
 
-      setHistory(hist);
+      // Ensure today's record is immediately incorporated into history for streaks and summaries
+      const combinedHistory = [...hist];
+      if (todayRec) {
+        const existingIdx = combinedHistory.findIndex((r) => r.localDate === todayRec.localDate);
+        if (existingIdx !== -1) {
+          combinedHistory[existingIdx] = todayRec;
+        } else {
+          combinedHistory.unshift(todayRec);
+        }
+      }
+
+      setHistory(combinedHistory);
       setTodayRecord(todayRec);
 
-      const calculated = calculateStreaks(hist, DEFAULT_STREAK_RULE, curTodayStr);
+      const calculated = calculateStreaks(combinedHistory, DEFAULT_STREAK_RULE, curTodayStr);
       setStreaks(calculated);
 
       if (profile?.groupId) {
