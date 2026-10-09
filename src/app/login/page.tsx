@@ -24,11 +24,20 @@ export default function LoginPage() {
   const [infoMsg, setInfoMsg] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Ensure fields are completely cleared whenever switching between portals
   const handlePortalSwitch = (type: PortalType) => {
     setPortalType(type);
+    setEmail('');
+    setPassword('');
+    setShowPassword(false);
     setErrorMsg(null);
     setInfoMsg(null);
   };
+
+  React.useEffect(() => {
+    setEmail('');
+    setPassword('');
+  }, [portalType]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -214,14 +223,18 @@ export default function LoginPage() {
         )}
 
         {/* Credentials Form */}
-        <form onSubmit={handleSignIn} className="space-y-4">
+        <form key={portalType} onSubmit={handleSignIn} autoComplete="off" className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-[#78350F] mb-1">
               Email Address
             </label>
             <div className="relative">
               <input
+                key={`email-${portalType}`}
+                id={`email-${portalType}`}
+                name={`login_${portalType}_email`}
                 type="email"
+                autoComplete="off"
                 required
                 placeholder={
                   portalType === 'super_admin'
@@ -253,7 +266,11 @@ export default function LoginPage() {
             </div>
             <div className="relative">
               <input
+                key={`password-${portalType}`}
+                id={`password-${portalType}`}
+                name={`login_${portalType}_password`}
                 type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
                 required
                 placeholder="••••••••"
                 value={password}
